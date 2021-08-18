@@ -48,8 +48,10 @@ class Binomial(Distribution):
         #               The init function can get access to these methods via the self
         #               variable.   
 
+        self.n = size
         self.p = prob
-        self.size = 20
+
+        Distribution.__init__(self, self.calculate_mean(), self.calculate_stdev())
 
     
     def calculate_mean(self):
@@ -67,9 +69,9 @@ class Binomial(Distribution):
         # TODO: calculate the mean of the Binomial distribution. Store the mean
         #       via the self variable and also return the new mean value
                 
-         self.mean = n * p
+        self.mean = self.n * self.p
 
-         return self.mean
+        return self.mean
 
 
     def calculate_stdev(self):
@@ -88,8 +90,8 @@ class Binomial(Distribution):
         #       the result in the self standard deviation attribute. Return the value
         #       of the standard deviation.
 
-        self.stdev = math.sqrt(self.n*self.p*(1-self.p))
-
+        self.stdev = math.sqrt(self.n * self.p * (1 - self.p))
+        
         return self.stdev
         
         
@@ -124,7 +126,7 @@ class Binomial(Distribution):
         #       Hint: You can use the calculate_mean() and calculate_stdev() methods
         #           defined previously.
         self.n = len(self.data)
-        self.p = sum(self.data) / len(self.data)
+        self.p = 1.0 * sum(self.data) / len(self.data)
         self.mean = self.calculate_mean()
         self.stdev = self.calculate_stdev()
 
@@ -176,10 +178,10 @@ class Binomial(Distribution):
         #   For example, if you flip a coin n = 60 times, with p = .5,
         #   what's the likelihood that the coin lands on heads 40 out of 60 times?
         
-        a = math.factorial(self.n) / (math.factorial(k) * (math.factorial(self.n - k)))
-        b = (self.p ** k) * (1 - self.p) ** (self.n - k)
+        combinatorial = math.factorial(self.n) / (math.factorial(k) * (math.factorial(self.n - k)))
+        pq = (self.p ** k) * (1 - self.p) ** (self.n - k)
         
-        return a * b        
+        return combinatorial * pq        
 
     def plot_bar_pdf(self):
 
@@ -204,6 +206,24 @@ class Binomial(Distribution):
 
         #   This method should also return the x and y values used to make the chart
         #   The x and y values should be stored in separate lists
+
+        x = []
+        y = []
+
+        for i in enumarate(self.n):
+            x.append(i)
+            y.append(self.pdf(i))
+
+        plt.bar(x,y)
+        plt.title('Distribution Outcome')
+        plt.ylabel('Probability')
+        plt.xlabel('Outcome')
+
+        plt.show()
+
+        return x, y
+
+
                 
     def __add__(self, other):
         
@@ -236,7 +256,13 @@ class Binomial(Distribution):
         #   When adding two binomial distributions, the p value remains the same
         #   The new n value is the sum of the n values of the two distributions.
                 
-        pass
+        result = Binomial()
+        result.n = self.n + other.n
+        result.p = self.p
+        result.calculate_mean()
+        result.calculate_stdev()
+        
+        return result
         
         
     def __repr__(self):
@@ -257,4 +283,4 @@ class Binomial(Distribution):
         #       with the values replaced by whatever the actual distributions values are
         #       The method should return a string in the expected format
     
-        pass
+        format(self.mean, self.stdev, self.p, self.n)
